@@ -5,12 +5,12 @@
 //  Date        : 2020-06-22
 //
 //  Copyright   : Copyright (C) 2020  Felix C. Stegerman
-//  Version     : v0.0.1
+//  Version     : v0.1.0
 //  License     : GPLv3+
 //
 //  --                                                          ; }}}1
 
-static VERSION: &str = "0.0.1";
+static VERSION: &str = "0.1.0";
 static HELP: &str = "\
 Usage: proudcat [OPTIONS] [FILES]...
 

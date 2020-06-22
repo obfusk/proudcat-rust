@@ -5,11 +5,12 @@
     Date        : 2020-06-22
 
     Copyright   : Copyright (C) 2020  Felix C. Stegerman
-    Version     : v0.0.1
+    Version     : v0.1.0
     License     : GPLv3+
 
 <!-- }}}1 -->
 
+[![Crates.io](https://img.shields.io/crates/v/proudcat)](https://crates.io/crates/proudcat)
 [![GPLv3+](https://img.shields.io/badge/license-GPLv3+-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## Description
@@ -31,7 +32,9 @@ $ proudcat --help
 
 ## Installing
 
-...
+```bash
+$ cargo install proudcat
+```
 
 ## License
 
