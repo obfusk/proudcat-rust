@@ -7,6 +7,8 @@ homepage    = "https://github.com/obfusk/proudcat-rust"
 repository  = "https://github.com/obfusk/proudcat-rust"
 readme      = "README.md"
 license     = "GPLv3+"
+keywords    = ["cat", "cli", "terminal", "colors", "colours"]
+categories  = ["command-line-utilities"]
 edition     = "2018"
 
 [dependencies]
