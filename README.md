@@ -26,7 +26,7 @@ written in rust.
 ## Help
 
 ```bash
-$ proudcat-rust --help
+$ proudcat --help
 ```
 
 ## Installing

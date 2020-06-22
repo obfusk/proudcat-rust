@@ -1,5 +1,5 @@
 [package]
-name = "proudcat-rust"
+name = "proudcat"
 version = "0.0.1"
 authors = ["Felix C. Stegerman <flx@obfusk.net>"]
 edition = "2018"

@@ -1,6 +1,6 @@
 //  --                                                          ; {{{1
 //
-//  File        : proudcat-rust
+//  File        : src/main.rs
 //  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
 //  Date        : 2020-06-22
 //
@@ -12,7 +12,7 @@
 
 static VERSION: &str = "0.0.1";
 static HELP: &str = "\
-Usage: proudcat-rust [OPTIONS] [FILES]...
+Usage: proudcat [OPTIONS] [FILES]...
 
   proudcat-rust - cat + rainbow
 
