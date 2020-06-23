@@ -125,8 +125,15 @@ fn parse_args() -> (Options, Vec<String>) {                   //  {{{1
   (Options { flags, bg, tc }, files)
 }                                                             //  }}}1
 
+// TODO
+fn stdout_isatty() -> bool {
+  if !cfg!(unix) { true } else {
+    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
+  }
+}
+
 fn main() {
-  let stdin         = io::stdin();
+  let (tty, stdin)  = (stdout_isatty(), io::stdin());
   let (opts, files) = parse_args();
   let clrs          = colours(&opts.flags);
   let mut it        = clrs.iter().cycle();
@@ -141,7 +148,7 @@ fn main() {
     };
     while bufr.read_line(&mut line).unwrap() != 0 {
       let sline = line.trim();
-      if sline.is_empty() && !opts.bg {
+      if sline.is_empty() && !(opts.bg && tty) {
         print!("{}", line)
       } else {
         let sc  = setcolour(opts.tc, opts.bg, it.next().unwrap());

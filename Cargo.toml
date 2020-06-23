@@ -13,3 +13,4 @@ edition     = "2018"
 exclude     = [".github"]
 
 [dependencies]
+libc = "0.2.68"
