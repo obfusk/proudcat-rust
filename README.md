@@ -11,6 +11,7 @@
 <!-- }}}1 -->
 
 [![Crates.io](https://img.shields.io/crates/v/proudcat)](https://crates.io/crates/proudcat)
+[![CI](https://github.com/obfusk/proudcat-rust/workflows/CI/badge.svg)](https://github.com/obfusk/proudcat-rust/actions?query=workflow%3ACI)
 [![GPLv3+](https://img.shields.io/badge/license-GPLv3+-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## Description
