@@ -129,6 +129,7 @@ fn parse_args() -> (Options, Vec<String>) {                   //  {{{1
   (Options { flags, bg, tc }, files)
 }                                                             //  }}}1
 
+// TODO: don't "fake" newline at EOF when missing
 fn print_lines<'a>(r: impl BufRead, opts: &Options,
                    it: &mut impl Iterator<Item = &'a Rgb>) {
   for line in r.lines() {
