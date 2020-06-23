@@ -125,31 +125,32 @@ fn parse_args() -> (Options, Vec<String>) {                   //  {{{1
   (Options { flags, bg, tc }, files)
 }                                                             //  }}}1
 
-// TODO: don't "fake" newline at EOF when missing
 fn main() {
   let stdin         = io::stdin();
   let (opts, files) = parse_args();
   let clrs          = colours(&opts.flags);
   let mut it        = clrs.iter().cycle();
   for file in files {
-    for line in if &file == "-" {
+    let mut line = String::new();
+    let mut bufr = if &file == "-" {
       Box::new(stdin.lock()) as Box<dyn BufRead>
     } else {
       Box::new(io::BufReader::new(
         File::open(file).unwrap_or_else(|e| oops!(e.to_string()))
       ))
-    }.lines() {
-      let uline = line.unwrap();
-      let sline = uline.trim();
+    };
+    while bufr.read_line(&mut line).unwrap() != 0 {
+      let sline = line.trim();
       if sline.is_empty() {
-        println!("{}", uline)
+        print!("{}", line)
       } else {
-        let i = uline.find(sline.chars().next().unwrap()).unwrap();
-        println!("{}{}{}{}{}", uline[..i].to_string(),
+        let i = line.find(sline.chars().next().unwrap()).unwrap();
+        print!("{}{}{}{}{}", line[..i].to_string(),
           setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
-          resetcolour(opts.bg), uline[i+sline.len()..].to_string()
+          resetcolour(opts.bg), line[i+sline.len()..].to_string()
         )
       }
+      line.clear()
     }
   }
 }
