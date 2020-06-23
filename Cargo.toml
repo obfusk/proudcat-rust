@@ -10,5 +10,6 @@ license     = "GPL-3.0-or-later"
 keywords    = ["cat", "cli", "terminal", "colors", "colours"]
 categories  = ["command-line-utilities"]
 edition     = "2018"
+exclude     = [".github"]
 
 [dependencies]
