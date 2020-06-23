@@ -1,7 +1,7 @@
 [package]
 name        = "proudcat"
 description = "proudcat - cat + :rainbow:"
-version     = "0.1.1"
+version     = "0.1.2"
 authors     = ["Felix C. Stegerman <flx@obfusk.net>"]
 homepage    = "https://github.com/obfusk/proudcat-rust"
 repository  = "https://github.com/obfusk/proudcat-rust"
