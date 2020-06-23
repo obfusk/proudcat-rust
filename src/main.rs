@@ -144,15 +144,13 @@ fn main() {
       if sline.is_empty() && !opts.bg {
         print!("{}", line)
       } else {
-        let sc = setcolour(opts.tc, opts.bg, it.next().unwrap());
-        let rc = resetcolour(opts.bg);
-        if opts.bg {
-          print!("{}\x1b[2K{}{}", sc, line, rc)
-        } else {
-          let i = line.find(sline.chars().next().unwrap()).unwrap();
-          print!("{}{}{}{}{}", line[..i].to_string(), sc, sline, rc,
-                               line[i+sline.len()..].to_string())
-        }
+        let sc  = setcolour(opts.tc, opts.bg, it.next().unwrap());
+        let rc  = resetcolour(opts.bg);
+        let cl  = if opts.bg { "\x1b[2K" } else { "" };
+        let i   = sline.chars().next().and_then(|c| line.find(c))
+                                      .unwrap_or(0);
+        print!("{}{}{}{}{}{}", line[..i].to_string(), sc, cl,
+               sline, rc, line[i+sline.len()..].to_string())
       }
       line.clear()
     }
