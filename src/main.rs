@@ -141,14 +141,18 @@ fn main() {
     };
     while bufr.read_line(&mut line).unwrap() != 0 {
       let sline = line.trim();
-      if sline.is_empty() {
+      if sline.is_empty() && !opts.bg {
         print!("{}", line)
       } else {
-        let i = line.find(sline.chars().next().unwrap()).unwrap();
-        print!("{}{}{}{}{}", line[..i].to_string(),
-          setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
-          resetcolour(opts.bg), line[i+sline.len()..].to_string()
-        )
+        let sc = setcolour(opts.tc, opts.bg, it.next().unwrap());
+        let rc = resetcolour(opts.bg);
+        if opts.bg {
+          print!("{}\x1b[2K{}{}", sc, line, rc)
+        } else {
+          let i = line.find(sline.chars().next().unwrap()).unwrap();
+          print!("{}{}{}{}{}", line[..i].to_string(), sc, sline, rc,
+                               line[i+sline.len()..].to_string())
+        }
       }
       line.clear()
     }
