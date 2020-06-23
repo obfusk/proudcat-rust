@@ -2,16 +2,16 @@
 //
 //  File        : src/main.rs
 //  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-//  Date        : 2020-06-22
+//  Date        : 2020-06-23
 //
 //  Copyright   : Copyright (C) 2020  Felix C. Stegerman
-//  Version     : v0.1.0
+//  Version     : v0.1.1
 //  License     : GPLv3+
 //
 //  --                                                          ; }}}1
 
-static VERSION: &str = "0.1.0";
-static HELP: &str = "\
+const VERSION: &str = "0.1.1";
+const HELP: &str = "\
 Usage: proudcat [OPTIONS] [FILES]...
 
   proudcat-rust - cat + rainbow
@@ -28,6 +28,7 @@ Options:
   --version                       Show the version and exit.
   --help                          Show this message and exit.";
 
+use std::borrow::BorrowMut;
 use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -128,27 +129,34 @@ fn parse_args() -> (Options, Vec<String>) {                   //  {{{1
   (Options { flags, bg, tc }, files)
 }                                                             //  }}}1
 
+fn print_lines<'a>(r: impl BufRead, opts: &Options,
+                   it: &mut impl Iterator<Item = &'a Rgb>) {
+  for line in r.lines() {
+    let uline = line.unwrap();
+    let sline = uline.trim();
+    if sline.is_empty() {
+      println!("{}", uline)
+    } else {
+      let i = uline.find(sline.chars().next().unwrap()).unwrap();
+      println!("{}{}{}{}{}", uline[..i].to_string(),
+        setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
+        resetcolour(opts.bg), uline[i+sline.len()..].to_string()
+      )
+    }
+  }
+}
+
 fn main() {
-  let stdin         = "/dev/stdin".to_string();               //  TODO
   let (opts, files) = parse_args();
   let clrs          = colours(&opts.flags);
   let mut it        = clrs.iter().cycle();
   for file in files {
-    let name = if &file == "-" { &stdin } else { &file };
-    let fh = File::open(name).unwrap_or_else(|e| oops!(e.to_string()));
-    let lines = io::BufReader::new(fh).lines();
-    for line in lines {
-      let uline = line.unwrap();
-      let sline = uline.trim();
-      if sline.is_empty() {
-        println!("{}", uline)
-      } else {
-        let i = uline.find(sline.chars().next().unwrap()).unwrap();
-        println!("{}{}{}{}{}", uline[..i].to_string(),
-          setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
-          resetcolour(opts.bg), uline[i+sline.len()..].to_string()
-        )
-      }
+    if &file == "-" {
+      let f = io::stdin();
+      print_lines(f.lock(), &opts, it.borrow_mut())
+    } else {
+      let f = File::open(file).unwrap_or_else(|e| oops!(e.to_string()));
+      print_lines(io::BufReader::new(f), &opts, it.borrow_mut())
     }
   }
 }
