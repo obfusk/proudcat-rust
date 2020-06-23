@@ -28,7 +28,6 @@ Options:
   --version                       Show the version and exit.
   --help                          Show this message and exit.";
 
-use std::borrow::BorrowMut;
 use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -69,18 +68,15 @@ fn detect_truecolor() -> bool {
 }
 
 fn setcolour(truecolor: bool, bg: bool, c: &Rgb) -> String {
-  let n = if bg { 48 } else { 38 };
-  let c = if truecolor {
+  format!("\x1b[{};{}m", if bg { 48 } else { 38 }, if truecolor {
     format!("2;{};{};{}", c.0, c.1, c.2)
   } else {
     format!("5;{}", rgbto8(c))
-  };
-  format!("\x1b[{};{}m", n, c)
+  })
 }
 
 fn resetcolour(bg: bool) -> String {
-  let n = if bg { 49 } else { 39 };
-  format!("\x1b[{};m", n)
+  format!("\x1b[{};m", if bg { 49 } else { 39 })
 }
 
 struct Options { flags: Vec<String>, bg: bool, tc: bool }
@@ -130,34 +126,30 @@ fn parse_args() -> (Options, Vec<String>) {                   //  {{{1
 }                                                             //  }}}1
 
 // TODO: don't "fake" newline at EOF when missing
-fn print_lines<'a>(r: impl BufRead, opts: &Options,
-                   it: &mut impl Iterator<Item = &'a Rgb>) {
-  for line in r.lines() {
-    let uline = line.unwrap();
-    let sline = uline.trim();
-    if sline.is_empty() {
-      println!("{}", uline)
-    } else {
-      let i = uline.find(sline.chars().next().unwrap()).unwrap();
-      println!("{}{}{}{}{}", uline[..i].to_string(),
-        setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
-        resetcolour(opts.bg), uline[i+sline.len()..].to_string()
-      )
-    }
-  }
-}
-
 fn main() {
+  let stdin         = io::stdin();
   let (opts, files) = parse_args();
   let clrs          = colours(&opts.flags);
   let mut it        = clrs.iter().cycle();
   for file in files {
-    if &file == "-" {
-      let f = io::stdin();
-      print_lines(f.lock(), &opts, it.borrow_mut())
+    for line in if &file == "-" {
+      Box::new(stdin.lock()) as Box<dyn BufRead>
     } else {
-      let f = File::open(file).unwrap_or_else(|e| oops!(e.to_string()));
-      print_lines(io::BufReader::new(f), &opts, it.borrow_mut())
+      Box::new(io::BufReader::new(
+        File::open(file).unwrap_or_else(|e| oops!(e.to_string()))
+      ))
+    }.lines() {
+      let uline = line.unwrap();
+      let sline = uline.trim();
+      if sline.is_empty() {
+        println!("{}", uline)
+      } else {
+        let i = uline.find(sline.chars().next().unwrap()).unwrap();
+        println!("{}{}{}{}{}", uline[..i].to_string(),
+          setcolour(opts.tc, opts.bg, it.next().unwrap()), sline,
+          resetcolour(opts.bg), uline[i+sline.len()..].to_string()
+        )
+      }
     }
   }
 }
