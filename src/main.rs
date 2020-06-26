@@ -2,7 +2,7 @@
 //
 //  File        : src/main.rs
 //  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-//  Date        : 2020-06-25
+//  Date        : 2020-06-26
 //
 //  Copyright   : Copyright (C) 2020  Felix C. Stegerman
 //  Version     : v0.1.2
@@ -11,6 +11,7 @@
 //  --                                                          ; }}}1
 
 const VERSION: &str = "0.1.2";
+
 const HELP: &str = "\
 Usage: proudcat [OPTIONS] [FILES]...
 
@@ -31,6 +32,7 @@ Options:
   --demo                          Demonstrate flags.
   --version                       Show the version and exit.
   --help                          Show this message and exit.";
+
 const FLAGS: &str = "\
   pride agender aromantic asexual bisexual genderfluid
   genderqueer lesbian nonbinary pansexual polysexual transgender";
@@ -38,6 +40,7 @@ const FLAGS: &str = "\
 use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
+use std::iter;
 use std::process;
 
 macro_rules! oops {
@@ -50,6 +53,7 @@ fn oops(msg: String) {
   process::exit(1)
 }
 
+#[derive(Clone, Copy)]
 struct Rgb(u8, u8, u8);
 
 fn rgbto8(c: &Rgb) -> u8 {
@@ -63,7 +67,7 @@ fn flag2colours(flag: &str) -> Vec<Rgb> {                     //  {{{1
     "bi" => "bisexual", "enby" => "nonbinary", "nb" => "nonbinary",
     "pan" => "pansexual", "trans" => "transgender", _ => flag
   };
-  match f {
+  let cs = match f {
     "pride"       => vec![Rgb(228, 3, 3), Rgb(255, 140, 0), Rgb(255, 237, 0),
                           Rgb(0, 128, 38), Rgb(0, 77, 255), Rgb(117, 7, 135)],
     "agender"     => vec![Rgb(0, 0, 0), Rgb(185, 185, 185),
@@ -91,6 +95,9 @@ fn flag2colours(flag: &str) -> Vec<Rgb> {                     //  {{{1
     "transgender" => vec![Rgb(91, 206, 250), Rgb(245, 169, 184),
                           Rgb(255, 255, 255)],
     _ => oops!("unknown flag: {}", flag)
+  };
+  if cs.len() > 3 { cs } else {
+    cs.iter().flat_map(|&c| iter::repeat(c).take(2)).collect()
   }
 }                                                             //  }}}1
 
