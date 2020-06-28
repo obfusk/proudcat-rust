@@ -2,7 +2,7 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2020-06-23
+    Date        : 2020-06-28
 
     Copyright   : Copyright (C) 2020  Felix C. Stegerman
     Version     : v0.1.2
@@ -24,6 +24,8 @@ proudcat-rust is basically a variant of
 written in rust.
 
 ![screenshot](screenshot.png)
+
+![screenshot](screenshot-bg-frame.png)
 
 ## Help
 

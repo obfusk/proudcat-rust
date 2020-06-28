@@ -2,7 +2,7 @@
 //
 //  File        : src/main.rs
 //  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-//  Date        : 2020-06-27
+//  Date        : 2020-06-28
 //
 //  Copyright   : Copyright (C) 2020  Felix C. Stegerman
 //  Version     : v0.1.2
@@ -37,6 +37,7 @@ fn rgbto8(c: &Rgb) -> u8 {
 const FLAGS: &str = "\
   pride, agender, aromantic, asexual, bisexual, genderfluid,
   genderqueer, lesbian, nonbinary, pansexual, polysexual, transgender";
+const ALIASES: &str = "lgbt, aro, ace, bi, enby, nb, pan, trans";
 
 // https://en.wikipedia.org/wiki/Pride_flag#Gallery
 fn flag2colours(flag: &str) -> Vec<Rgb> {                     //  {{{1
@@ -75,6 +76,7 @@ fn flag2colours(flag: &str) -> Vec<Rgb> {                     //  {{{1
   }
 }                                                             //  }}}1
 
+// TODO
 const BLACK: Rgb = Rgb(0, 0, 0);
 const WHITE: Rgb = Rgb(255, 255, 255);
 
@@ -109,21 +111,34 @@ fn brightness(c: &Rgb) -> f32 {
     as f32 / 255f32
 }
 
+fn frame_header(width: usize, name: Option<&str>) -> String {
+  let n = name.map(|x| format!("[{}]", x)).unwrap_or("".to_string());
+  format!("┌{:─^w$}┐", n, w = width)
+}
+
+fn frame_line(line: &str) -> String {
+  format!("│{}│", line)
+}
+
+fn frame_footer(width: usize) -> String {
+  format!("└{}┘", "─".repeat(width))
+}
+
 const HELP_TEMPLATE: &str = "\
 Usage: {usage}
 
   proudcat-rust - cat + rainbow
 
-  Flags: {after-help}.
+  Flags: {before-help}.
 
-  Aliases: lgbt, aro, ace, bi, enby, nb, pan, trans.
+  Aliases: {after-help}.
 
 Options:
 {unified}";
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "proudcat-rust", version = VERSION,
-  after_help = FLAGS, template = HELP_TEMPLATE)]
+  before_help = FLAGS, after_help = ALIASES, template = HELP_TEMPLATE)]
 struct Cli {                                                  //  {{{1
   #[structopt(name = "flag", short = "f", long = "flag",
     number_of_values = 1, display_order = 1,
@@ -140,7 +155,9 @@ struct Cli {                                                  //  {{{1
   no_tc: bool,
   #[structopt(long, display_order = 5, help = "Light terminal")]
   light: bool,
-  #[structopt(long, display_order = 6, help = "Demonstrate flags")]
+  #[structopt(long, display_order = 6, help = "Frame text")]
+  frame: bool,
+  #[structopt(long, display_order = 7, help = "Demonstrate flags")]
   demo: bool,
   #[structopt(name = "FILES", default_value = "-")]
   files: Vec<String>
@@ -154,23 +171,26 @@ fn parse_args() -> Cli {
   cli
 }
 
-// TODO
-fn stdout_isatty() -> bool {
-  if !cfg!(unix) { true } else {
-    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
-  }
+fn stdout_isatty() -> bool { atty::is(atty::Stream::Stdout) }
+
+fn terminal_width() -> usize {
+  env::var("COLUMNS").ok().and_then(|x| x.parse().ok()).or_else(||
+    term_size::dimensions().map(|x| x.0)
+  ).unwrap_or(80)
 }
 
 fn main() {
-  let (tty, stdin, cli) = (stdout_isatty(), io::stdin(), parse_args());
+  let (tty, stdin)  = (stdout_isatty(), io::stdin());
+  let (width, cli)  = (terminal_width() - 2, parse_args());
   if cli.demo {
     for flag in FLAGS.split_whitespace().map(|x| x.trim_end_matches(",")) {
-      println!("┌{}┐", "─".repeat(flag.len()));
+      println!("{}", frame_header(width, None));
       for c in flag2colours(flag) {
-        let s = colour(cli.bg, cli.tc, cli.light, &c, flag, false);
-        println!("│{}│", s)
+        let f = &format!("{:^w$}", flag, w = width);
+        let s = colour(cli.bg, cli.tc, cli.light, &c, f, false);
+        println!("{}", frame_line(&s))
       }
-      println!("└{}┘", "─".repeat(flag.len()))
+      println!("{}", frame_footer(width))
     }
   } else {
     let clrs    = colours(cli.flags.iter().flat_map(|a|
@@ -187,20 +207,33 @@ fn main() {
             oops!("Could not open file: {}: {}", &file, e.to_string())
         )))
       };
+      if cli.frame {
+        let name = if &file == "-" { None } else { Some(&file[..]) };
+        println!("{}", frame_header(width, name))
+      }
       while bufr.read_line(&mut line).unwrap() != 0 {
         let sline = line.trim();
-        if sline.is_empty() && !(cli.bg && tty) {
-          print!("{}", line)
+        if cli.frame {
+          let s = format!(" {:<w$}", line.trim_end_matches("\n"), w = width-1);
+          let t = if !sline.is_empty() || cli.bg {
+            colour(cli.bg, cli.tc, cli.light, it.next().unwrap(), &s, false)
+          } else { s };
+          println!("{}", frame_line(&t))
         } else {
-          let s = colour(cli.bg, cli.tc, cli.light, it.next().unwrap(),
-                         sline, true);
-          let i = sline.chars().next().and_then(|c| line.find(c))
-                                      .unwrap_or(0);
-          print!("{}{}{}", line[..i].to_string(), s,
-                 line[i+sline.len()..].to_string())
+          if sline.is_empty() && !(cli.bg && tty) {
+            print!("{}", line)
+          } else {
+            let s = colour(cli.bg, cli.tc, cli.light, it.next().unwrap(),
+                           sline, true);
+            let i = sline.chars().next().and_then(|c| line.find(c))
+                                        .unwrap_or(0);
+            print!("{}{}{}", line[..i].to_string(), s,
+                   line[i+sline.len()..].to_string())
+          }
         }
         line.clear()
       }
+      if cli.frame { println!("{}", frame_footer(width)) }
     }
   }
 }
