@@ -2,15 +2,15 @@
 //
 //  File        : src/main.rs
 //  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-//  Date        : 2020-06-28
+//  Date        : 2020-07-02
 //
 //  Copyright   : Copyright (C) 2020  Felix C. Stegerman
-//  Version     : v0.1.2
+//  Version     : v0.2.0
 //  License     : GPLv3+
 //
 //  --                                                          ; }}}1
 
-const VERSION: &str = "0.1.2";
+const VERSION: &str = "0.2.0";
 
 use std::env;
 use std::fs::File;
