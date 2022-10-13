@@ -1,10 +1,10 @@
 //  --                                                          ; {{{1
 //
 //  File        : src/main.rs
-//  Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-//  Date        : 2020-07-02
+//  Maintainer  : FC Stegerman <flx@obfusk.net>
+//  Date        : 2022-10-13
 //
-//  Copyright   : Copyright (C) 2020  Felix C. Stegerman
+//  Copyright   : Copyright (C) 2022  FC Stegerman
 //  Version     : v0.2.0
 //  License     : GPLv3+
 //

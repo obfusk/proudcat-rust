@@ -2,7 +2,7 @@
 name        = "proudcat"
 description = "proudcat - cat + :rainbow:"
 version     = "0.2.0"
-authors     = ["Felix C. Stegerman <flx@obfusk.net>"]
+authors     = ["FC Stegerman <flx@obfusk.net>"]
 homepage    = "https://github.com/obfusk/proudcat-rust"
 repository  = "https://github.com/obfusk/proudcat-rust"
 readme      = "README.md"
